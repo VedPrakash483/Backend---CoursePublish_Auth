@@ -59,5 +59,5 @@ This is a basic course selling application built using **Node.js** and **MongoDB
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/your-username/course-selling-app.git](https://github.com/VedPrakash483/Backend---CoursePublish_Auth.git)
+   git clone https://github.com/VedPrakash483/Backend---CoursePublish_Auth.git
    cd course-selling-app
