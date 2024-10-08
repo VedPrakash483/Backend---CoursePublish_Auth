@@ -26,7 +26,7 @@ router.post('/signup', async (req, res) => {
         }
     }catch(error){
         console.log("This is the error: ", error);
-        return req.status(403)
+        return req.status(403).json({ msg: "Internal server error" });
     }
 });
 
@@ -66,7 +66,7 @@ router.post('/courses/:courseId', userMiddleware, async (req, res) => {
         }
     }catch(error){
         console.log("This is the error: ", error);
-        return req.status(403)
+        return req.status(403).json({msg: "Internal Error!"})
     }
 
 });
@@ -74,7 +74,7 @@ router.post('/courses/:courseId', userMiddleware, async (req, res) => {
 router.get('/purchasedCourses', userMiddleware, async (req, res) => {
     // Implement fetching purchased courses logic
     const user = await User.findOne({
-        username: req.headers.username
+        username: req.headers.username;
     });
 
     console.log(user.purchasedCourses);
