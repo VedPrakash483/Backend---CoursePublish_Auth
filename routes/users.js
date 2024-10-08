@@ -40,12 +40,53 @@ router.get('/courses', async (req, res) => {
     }
 });
 
-router.post('/courses/:courseId', userMiddleware, (req, res) => {
+router.post('/courses/:courseId', userMiddleware, async (req, res) => {
     // Implement course purchase logic
+    const courseId = req.params.courseId;
+    const { username, password} = req.header;
+
+    try{
+        const user = await User.findOne({
+            username: username,
+            password: password
+        })
+        if(user){
+            User.updateOne({
+                username: username
+            },{
+                "$push": {
+                    purchasedCourses: courseId
+                }
+            })
+            res.json({
+                msg: "Purchased Complete!"
+            })
+        }else{
+            return req.status(403).json({msg: "User Doesn't exist"});
+        }
+    }catch(error){
+        console.log("This is the error: ", error);
+        return req.status(403)
+    }
+
 });
 
-router.get('/purchasedCourses', userMiddleware, (req, res) => {
+router.get('/purchasedCourses', userMiddleware, async (req, res) => {
     // Implement fetching purchased courses logic
+    const user = await User.findOne({
+        username: req.headers.username
+    });
+
+    console.log(user.purchasedCourses);
+    const courses = await Course.find({
+        _id: {
+            "$in": user.purchasedCourses
+        }
+    });
+
+    res.json({
+        courses: courses
+    })
 });
 
 module.exports = router
