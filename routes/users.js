@@ -1,6 +1,9 @@
 const { Router } = require('express');
 const { User, Course } = require('../db');
 
+const { JWT_SECRET } = require('../config')
+const jwt = require('jsonwebtoken')
+
 const router = Router();
 
 const userMiddleware = require('../middleware/users')
@@ -30,6 +33,35 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+router.post('/signin', async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const user = await User.findOne({
+        username
+    })
+
+    try{
+        if(user){
+            const jwtToken = jwt.sign({
+                username
+            }, JWT_SECRET);
+            res.json({
+                jwtToken
+            })
+        }else{
+            res.status(411).json({
+                message: "Incorrect email and pass"
+            })
+        }
+    }catch(e){
+        console.log("This is the error: ", e);
+        return res.status(403).json({
+            msg: "Internal Error"
+        })
+    }
+});
+
 router.get('/courses', async (req, res) => {
     try {
         const courses = await Course.find();
@@ -42,7 +74,7 @@ router.get('/courses', async (req, res) => {
 
 router.post('/courses/:courseId', userMiddleware, async (req, res) => {
     const courseId = req.params.courseId;
-    const { username } = req.headers;  // Get username from headers
+    const username = req.username; // Get username from headers
 
     try {
         // Check if user exists

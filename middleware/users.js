@@ -1,22 +1,30 @@
-const { User } = require('../db')
+const express = require('express')
+const app = express()
+const {JWT_SECRET} = require("../config");
+const jwt = require("jsonwebtoken");
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
-async function usersMiddleware(req, res, next) {
-    const username = req.headers.username;
-    const password = req.headers.password;
-
+function userMiddleware(req, res, next) {
+    const token = req.headers.authorization;
+    const words = token.split(" ");
+    const jwtToken = words[1];
+    const decodedValue = jwt.verify(jwtToken, JWT_SECRET);
     try{
-        const user = await User.findOne({
-                username: username,
-                password: password
+        
+       if(decodedValue.username){
+        req.username = decodedValue.username;
+        next()
+       }else{
+        res.json({
+            msg: "User does not exists"
         })
-        if(user){
-            next();
-        }
-    }catch(error){
-        console.error("Error checking credentials:", error);
-        return res.status(500).json({ message: "Internal server error" });
+       }
+    }catch(e){
+        res.status(411).json({
+            message: "Incorrect email and pass"
+        })
     }
-    
 }
 
-module.exports = usersMiddleware;
+module.exports = userMiddleware;
